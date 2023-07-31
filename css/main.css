@@ -1,0 +1,53 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    font-family: 'Anton', sans-serif;
+    height: 100vh;
+    margin: 0;
+}
+
+header {
+    font-size: 6vmin;
+    text-transform: uppercase;
+}
+
+h2 {
+    font-size: 5vmin;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(3, 10vmin);
+    grid-template-rows: repeat(3, 10vmin);
+    border: 0.5vmin solid black;
+}
+
+#board>div {
+    border: 0.5vmin solid black;
+    font-family: 'Anton', sans-serif;
+    text-align: center;
+    font-size: 5vmin;
+    text-transform: uppercase;
+}
+#board>div:hover {
+    background-color: grey;
+}
+
+button {
+    margin-top: 4vmin;
+    font-family: 'Anton', sans-serif;
+    font-size: 3vmin;
+    background-color: white;
+    border-radius: 20%;
+    border-color: black;
+}
+button:hover {
+    background-color: grey;
+    color: white;
+    border-color: grey;
+}
