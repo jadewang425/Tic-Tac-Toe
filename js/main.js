@@ -47,7 +47,7 @@ function renderBoard() {
     }
 )}
 
-
+// I will continue to work on it this week... I need more time to understand how each function is created...
 
 // handle a player clicking a square
 
