@@ -16,7 +16,7 @@ const boardEl = document.querySelector('#board');
 const resetGameBtn = document.getElementById('resetGame');
 // turn the cells into a JS array
 const cellEls = [...document.querySelectorAll('#board > div')];
-// console.log(cellEls)
+//console.log(cellEls)
 
 // initial the game
 // render the values to the page
@@ -27,6 +27,8 @@ init ()
 function init () {
     turn = 1
     winner = null
+    boardEl.style.backgroundColor = 'white';
+    messageEl.style.color ='black';
     board = [
         [0, 0, 0], // col 0
         [0, 0, 0], // col 1
@@ -61,7 +63,8 @@ function renderMessage() {
     if (winner === "T") {
         messageEl.innerText = "It's a Tie!"
     } else if (winner) {
-        messageEl.innerText = winner + " wins!"
+        messageEl.innerText = winner + " wins!";
+        boardEl.style.backgroundColor = 'grey';
     } else {
         messageEl.innerText = options[turn] + "'s turn!"
     }
@@ -74,7 +77,7 @@ function handleChoice(evt) {
     if (evt.target.innerText !== '') {
         messageEl.style.color = 'red'
         return messageEl.innerText = 'Invalid choice!'
-    }
+    } else if (winner) return
     // console.log('handleChoice evt', evt.target)
     // turn h2 back to black after an invaild choice is made
     messageEl.style.color = 'black'
@@ -86,7 +89,7 @@ function handleChoice(evt) {
     // get column array
     const colIdx = cellId[1]
     const colArr = board[colIdx]
-    console.log('handleChoice board[colIdx]', board[colIdx]);
+    // console.log('handleChoice board[colIdx]', colIdx);
 
     // get row Index
     const rowIdx = cellId[3];
@@ -100,68 +103,84 @@ function handleChoice(evt) {
 
     // check if there's a winner
     winner = getWinner(colIdx, rowIdx)
+    console.log('winner', winner)
 
     render()
 }
 
-function countAdjacent(colIdx, rowIdx, colOffset, rowOffset) {
-    const player = board[colIdx][rowIdx]
-    // console.log('player', player)
-    let count = 0
-
-    // use while loop to check the spaces around the played tile
-    colIdx += colOffset
-    rowIdx += rowOffset
-    
-    while (
-        board[colIdx] !== undefined &&
-        board[colIdx][rowIdx] !== undefined &&
-        board[colIdx][rowIdx] === player
-    ) {
-        count++
-        colIdx +=colOffset
-        rowIdx +=rowOffset
+// check column winner
+function checkColWinner(colIdx, rowIdx) {
+    let player = board[colIdx][rowIdx];
+    let colCount = 0;
+    // console.log('checkColWinner, col ', board[colIdx])
+    for (let i = 0; i < board[colIdx].length; i++) {
+        if (board[colIdx][i] === player) {
+            colCount ++;
+        }        
     }
-    console.log('the count in countAdj1', count)
-    return count
+    // console.log('checkColWinner')
+    return colCount === 3 ? options[player] : null;
 }
 
-// check vertical/column winner
-function checkColWinners(colIdx, rowIdx) {
-    // go from N to S
-    // 0 = not changing the column
-    // -1 = moving south down the column
-    return countAdjacent(colIdx, rowIdx, 0, -1) === 2 ? board[colIdx][rowIdx] : null
+// check row winner
+function checkRowWinner(colIdx, rowIdx) {
+    let player = board[colIdx][rowIdx];
+    let rowCount = 0;
+    //console.log('checkRowWinner', board[colIdx]);
+    for (let i = 0; i < board[colIdx].length; i++) {
+        if (board[i][rowIdx] === player) {
+            rowCount += 1;
+        }
+    }
+    // console.log('checkRowWinner')
+    return rowCount === 3 ? options[player] : null
 }
 
-// function checkRowWinners(colIdx, rowIdx) {
-//     return countAdjacent(colIdx, rowIdx, -1, 0) >= 2 ? board[colIdx][rowIdx] : null
-// }
+// check NWSE winner
+function checkDiagonalWinNESW(colIdx, rowIdx) {
+    let player = board[colIdx][rowIdx];
+    let NESWCount = 0;
+    for (let i = 0; i < board[colIdx].length; i++) {
+        if (board[i][i] === player) {
+            NESWCount ++;
+        }
+    }
+    // console.log('NESWCount', NESWCount)
+    return NESWCount === 3 ? options[player] : null;
+    
+}
 
-// function checkDiagonalWinNWSE(colIdx, rowIdx) {
-//     const adjCountNW = countAdjacent(colIdx, rowIdx, -1, 1)
-//     const adjCountSE = countAdjacent(colIdx, rowIdx, 1, -1)
-
-//     return adjCountNW + adjCountSE >= 2? board[colIdx][rowIdx] : null
-// }
-
-// function checkDiaginalWinNESW(colIdx, rowIdx) {
-//     const adjCountNE = countAdjacent(colIdx, rowIdx, 1, -1)
-//     const adjCountSW = countAdjacent(colIdx, rowIdx, -1, 1)
-
-//     return adjCountNE + adjCountSW >= 2? board[colIdx][rowIdx] : null
-// }
+// check NESW winner
+function checkDiaginalWinNWSE(colIdx, rowIdx) {
+    let player = board[colIdx][rowIdx];
+    let NWSECount = 0;
+    let r = board[colIdx].length - 1
+    for (let i = 0; i < board[colIdx].length; i++) {
+        // console.log('checkDiaginalWinNWSE - r', r);
+        if (board[i][r] === player) {
+            NWSECount ++;
+        }
+        r--;
+    }
+    // console.log('NWSECount', NWSECount)
+    return NWSECount === 3 ? options[player] : null;
+}
 
 function getWinner(colIdx, rowIdx) {
-    console.log('this is rowidx - in getWinner', rowIdx)
-    console.log('this is colidx - in getWinner', colIdx)
-    console.log('this is the board', board)
-    return (
-        checkColWinners(colIdx, rowIdx) //|| 
-        //checkRowWinners(colIdx, rowIdx) ||
-        // checkDiagonalWinNWSE(colIdx, rowIdx) ||
-        // checkDiaginalWinNESW(colIdx, rowIdx)
-    )
+    // console.log('this is rowidx - in getWinner', rowIdx)
+    // console.log('this is colidx - in getWinner', colIdx)
+    // console.log('this is the board', board)
+    for (i = 0; i < board.length; i++) {
+        if (board[i].some(e => e === 0)) {
+            return (
+                checkColWinner(colIdx, rowIdx) || 
+                checkRowWinner(colIdx, rowIdx) ||
+                checkDiagonalWinNESW(colIdx, rowIdx) ||
+                checkDiaginalWinNWSE(colIdx, rowIdx)
+            )
+        }
+    }
+    return 'T'
 }
 
 boardEl.addEventListener('click', handleChoice)
@@ -169,5 +188,3 @@ boardEl.addEventListener('click', handleChoice)
 
 // handle a player clicking the replay button
 resetGameBtn.addEventListener('click', init)
-
-// I'm still working on it trying to figure out how to put x and o in the cell...
